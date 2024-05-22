@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>EC60X Plate Maker</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        form label,
+        form select,
+        form button {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>EC60X Plate Maker</h1>
+    <form id="configForm">
+        <label for="backspace">Backspace:</label>
+        <select id="backspace">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Backspace</option>
+            <option value="1">Split Backspace</option>
+        </select>
+        <label for="left_shift">Left Shift:</label>
+        <select id="left_shift">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Left Shift</option>
+            <option value="1">Split Left Shift</option>
+        </select>
+        <label for="right_shift">Right Shift:</label>
+        <select id="right_shift">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Right Shift</option>
+            <option value="1">Split Right Shift 1.75U | 1U</option>
+            <option value="2">Split Right Shift 1U | 1.75U</option>
+        </select>
+        <label for="enter">Enter:</label>
+        <select id="enter">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">ANSI</option>
+            <option value="1">ISO</option>
+        </select>
+        <label for="bottom_row">Bottom Row:</label>
+        <select id="bottom_row">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">7U WK</option>
+            <option value="1">7U WKL</option>
+            <option value="2">7U HHKB</option>
+            <option value="3">6.25U</option>
+            <option value="4">Split 6.25U</option>
+            <option value="5">6U</option>
+            <option value="6">6U 2-Way Split (2U Housing)</option>
+            <option value="7">6U 2-Way Split (3U Stabs)</option>
+            <option value="8">6U 3-Way Split</option>
+            <option value="9">6U HHKB</option>
+            <option value="10">6U HHKB 2-Way Split (2U Housing)</option>
+            <option value="11">6U HHKB 2-Way Split (3U Stabs)</option>
+            <option value="12">6U HHKB 3-Way Split</option>
+            <option value="13">JIS WK</option>
+            <option value="14">JIS WKL</option>
+        </select>
+        <!-- Repeat for other configurations -->
+        <button type="submit">Download</button>
+    </form>
+
+    <script>
+        $(document).ready(function () {
+            $("#configForm").submit(function (e) {
+                e.preventDefault();
+                var isFormFilled = true;
+                $('select').each(function () {
+                    if ($(this).val() == null) {
+                        isFormFilled = false;
+                        return false;
+                    }
+                });
+                if (!isFormFilled) {
+                    alert("Please select all configurations.");
+                } else {
+                    var configIndices = $('select').map(function () { return $(this).val(); }).get();
+                    var filename = "EC60X_" + configIndices.join('_') + ".dxf";
+                    var fileUrl = 'Plate_Indexed_Name' + filename;
+
+                    // Create an invisible <a> element with the download attribute
+                    var downloadLink = document.createElement('a');
+                    downloadLink.href = fileUrl;
+                    downloadLink.download = filename;
+                    downloadLink.style.display = 'none';
+
+                    // Append the <a> element to the body and simulate a click on it
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+
+                    // Remove the <a> element from the body
+                    document.body.removeChild(downloadLink);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
