@@ -83,21 +83,23 @@
                     var filename = "EC60X_" + configIndices.join('_') + ".dxf";
                     var fileUrl = 'https://raw.githubusercontent.com/Cipulot/ec60x-plate-maker/main/Plate_Indexed_Name/' + filename;
 
-                    // Create an invisible <a> element with the download attribute
-                    var downloadLink = document.createElement('a');
-                    downloadLink.href = fileUrl;
-                    downloadLink.download = filename;
-                    downloadLink.style.display = 'none';
+                    fetch(fileUrl)
+                        .then(resp => resp.blob())
+                        .then(blob => {
+                            var url = window.URL.createObjectURL(blob);
 
-                    // Append the <a> element to the body and simulate a click on it
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
+                            var downloadLink = document.createElement('a');
+                            downloadLink.href = url;
+                            downloadLink.download = filename;
+                            downloadLink.style.display = 'none';
 
-                    // Remove the <a> element from the body
-                    document.body.removeChild(downloadLink);
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+
+                            document.body.removeChild(downloadLink);
+                        });
                 }
             });
-        });
     </script>
 </body>
 
