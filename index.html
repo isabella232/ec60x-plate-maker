@@ -81,11 +81,14 @@
                 } else {
                     var configIndices = $('select').map(function () { return $(this).val(); }).get();
                     var filename = "EC60X_" + configIndices.join('_') + ".dxf";
-                    var fileUrl = 'https://raw.githubusercontent.com/Cipulot/ec60x-plate-maker/main/Plate_Indexed_Name/' + filename;
+                    var fileUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/Plate_Indexed_Name/' + filename;
 
                     fetch(fileUrl)
-                        .then(resp => resp.blob())
-                        .then(blob => {
+                        .then(response => response.json())
+                        .then(data => {
+                            var base64String = data.content;
+                            var decodedData = atob(base64String);
+                            var blob = new Blob([decodedData], { type: "application/dxf" });
                             var url = window.URL.createObjectURL(blob);
 
                             var downloadLink = document.createElement('a');
