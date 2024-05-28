@@ -109,7 +109,7 @@
                 if (!isFormFilled) {
                     alert("Please select all configurations.");
                 } else {
-                    var boardValue = $("#board").find("option:selected").text();
+                    var boardValue = $("#board").val();
                     var configIndices = $('select').not('#board').map(function () { return $(this).val(); }).get();
                     var filename = boardValue + "_" + configIndices.join('_') + ".dxf";
                     var fileUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/Plate_Indexed_Name/' + boardValue + '_Plate_Indexed_Name/' + filename;
