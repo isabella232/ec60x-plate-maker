@@ -13,7 +13,8 @@
             margin-bottom: 10px;
         }
 
-        select, button {
+        select,
+        button {
             min-width: 100%;
             height: 40px;
         }
@@ -34,6 +35,12 @@
 <body>
     <h1>EC60X Plate Maker</h1>
     <form id="configForm">
+        <label for="board">Base Board:</label>
+        <select id="board">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="EC60X">EC60X</option>
+            <option value="J-01">J-01</option>
+        </select>
         <label for="backspace">Backspace:</label>
         <select id="backspace">
             <option value="" selected disabled hidden>Choose here</option>
@@ -101,9 +108,11 @@
                 if (!isFormFilled) {
                     alert("Please select all configurations.");
                 } else {
-                    var configIndices = $('select').map(function () { return $(this).val(); }).get();
-                    var filename = "EC60X_" + configIndices.join('_') + ".dxf";
-                    var fileUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/Plate_Indexed_Name/' + filename;
+                    var boardValue = $("#board").find("option:selected").text();
+                    var configIndices = $('select').not('#board').map(function () { return $(this).val(); }).get();
+                    var filename = boardValue + "_" + configIndices.join('_') + ".dxf";
+                    var fileUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/Plate_Indexed_Name/' + boardValue + '_Plate_Indexed_Name/' + filename;
+
 
                     fetch(fileUrl)
                         .then(response => response.json())
