@@ -171,13 +171,22 @@
                                                 zip.generateAsync({ type: "blob" }).then(function (content) {
                                                     saveAs(content, boardValue + "_" + configIndices.join('_') + ".zip");
                                                 });
+                                            })
+                                            .catch(error => {
+                                                console.error('Error fetching Densus guide:', error);
                                             });
                                     } else {
                                         zip.generateAsync({ type: "blob" }).then(function (content) {
                                             saveAs(content, boardValue + "_" + configIndices.join('_') + ".zip");
                                         });
                                     }
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching license:', error);
                                 });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching DXF file:', error);
                         });
                 }
             });
