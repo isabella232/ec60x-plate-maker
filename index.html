@@ -46,7 +46,8 @@
 
 <body>
     <h1>EC60X Plate Maker</h1>
-    <p>This plate maker is specifically for the EC60X PCB and its own screw hole placement. It is NOT a plate maker for the deprecated EC60.</p>
+    <p>This plate maker is specifically for the EC60X PCB and its own screw hole placement. It is NOT a plate maker for
+        the deprecated EC60.</p>
     <form id="configForm">
         <label for="board">Base Board:</label>
         <select id="board">
@@ -111,7 +112,8 @@
 
     <footer>
         <p>&copy; 2024 Cipulot</p>
-        <p>All files are provided under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> License.</p>
+        <p>All files are provided under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+                target="_blank">CC BY-NC-SA 4.0</a> License.</p>
         <a href="https://cipulot.squarespace.com/" target="_blank">
             <img src="https://squarespace.com/favicon.ico" alt="Visit my Squarespace" />
         </a>
@@ -146,44 +148,68 @@
                     fetch(fileUrl)
                         .then(response => response.json())
                         .then(data => {
-                            var base64String = data.content;
-                            var decodedData = atob(base64String);
+                            if (data.encoding === 'base64') {
+                                var base64String = data.content.replace(/\n/g, '');
+                                var binaryString = atob(base64String);
+                                var byteArray = new Uint8Array(binaryString.length);
+                                for (var i = 0; i < binaryString.length; i++) {
+                                    byteArray[i] = binaryString.charCodeAt(i);
+                                }
 
-                            var zip = new JSZip();
-                            zip.file(filename, decodedData);
+                                var zip = new JSZip();
+                                zip.file(filename, byteArray);
 
-                            fetch(licenseUrl)
-                                .then(response => response.json())
-                                .then(licenseData => {
-                                    var licenseBase64 = licenseData.content;
-                                    var licenseDecoded = atob(licenseBase64);
-                                    zip.file("LICENSE", licenseDecoded);
+                                fetch(licenseUrl)
+                                    .then(response => response.json())
+                                    .then(licenseData => {
+                                        if (licenseData.encoding === 'base64') {
+                                            var licenseBase64 = licenseData.content.replace(/\n/g, '');
+                                            var licenseBinary = atob(licenseBase64);
+                                            var licenseByteArray = new Uint8Array(licenseBinary.length);
+                                            for (var i = 0; i < licenseBinary.length; i++) {
+                                                licenseByteArray[i] = licenseBinary.charCodeAt(i);
+                                            }
+                                            zip.file("LICENSE", licenseByteArray);
 
-                                    if (holeType === "Densus_Inserts") {
-                                        var densusGuideUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/densus_ec_insert_design_guide.png';
-                                        fetch(densusGuideUrl)
-                                            .then(response => response.json())
-                                            .then(densusData => {
-                                                var densusBase64 = densusData.content;
-                                                var densusDecoded = atob(densusBase64);
-                                                zip.file("densus_ec_insert_design_guide.png", densusDecoded, { base64: true });
+                                            if (holeType === "Densus_Inserts") {
+                                                var densusGuideUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/densus_ec_insert_design_guide.png';
+                                                fetch(densusGuideUrl)
+                                                    .then(response => response.json())
+                                                    .then(densusData => {
+                                                        if (densusData.encoding === 'base64') {
+                                                            var densusBase64 = densusData.content.replace(/\n/g, '');
+                                                            var densusBinary = atob(densusBase64);
+                                                            var densusByteArray = new Uint8Array(densusBinary.length);
+                                                            for (var i = 0; i < densusBinary.length; i++) {
+                                                                densusByteArray[i] = densusBinary.charCodeAt(i);
+                                                            }
+                                                            zip.file("densus_ec_insert_design_guide.png", densusByteArray);
 
+                                                            zip.generateAsync({ type: "blob" }).then(function (content) {
+                                                                saveAs(content, boardValue + "_" + configIndices.join('_') + "_Densus_Inserts.zip");
+                                                            });
+                                                        } else {
+                                                            throw new Error('Densus guide content is not base64 encoded');
+                                                        }
+                                                    })
+                                                    .catch(error => {
+                                                        console.error('Error fetching Densus guide:', error);
+                                                    });
+                                            } else {
                                                 zip.generateAsync({ type: "blob" }).then(function (content) {
                                                     saveAs(content, boardValue + "_" + configIndices.join('_') + ".zip");
                                                 });
-                                            })
-                                            .catch(error => {
-                                                console.error('Error fetching Densus guide:', error);
-                                            });
-                                    } else {
-                                        zip.generateAsync({ type: "blob" }).then(function (content) {
-                                            saveAs(content, boardValue + "_" + configIndices.join('_') + ".zip");
-                                        });
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error fetching license:', error);
-                                });
+                                            }
+                                        } else {
+                                            throw new Error('License content is not base64 encoded');
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching license:', error);
+                                    });
+                            } else {
+                                throw new Error('DXF file content is not base64 encoded');
+                            }
                         })
                         .catch(error => {
                             console.error('Error fetching DXF file:', error);
