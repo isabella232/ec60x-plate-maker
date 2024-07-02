@@ -100,6 +100,12 @@
             <option value="13">JIS WK</option>
             <option value="14">JIS WKL</option>
         </select>
+        <label for="hole_type">Hole Type:</label>
+        <select id="hole_type">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="Tapped_Holes">Tapped Holes</option>
+            <option value="Densus_Inserts">Densus Inserts</option>
+        </select>
         <button type="submit">Download</button>
     </form>
 
@@ -126,8 +132,14 @@
                     alert("Please select all configurations.");
                 } else {
                     var boardValue = $("#board").val();
-                    var configIndices = $('select').not('#board').map(function () { return $(this).val(); }).get();
-                    var filename = boardValue + "_" + configIndices.join('_') + ".dxf";
+                    var configIndices = $('select').not('#board, #hole_type').map(function () { return $(this).val(); }).get();
+                    var holeType = $("#hole_type").val();
+                    var filename = boardValue + "_" + configIndices.join('_');
+                    if (holeType === "Densus_Inserts") {
+                        filename += "_Densus_Inserts";
+                    }
+                    filename += ".dxf";
+
                     var fileUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/Plate_Indexed_Name/' + boardValue + '_Plate_Indexed_Name/' + filename;
                     var licenseUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/LICENSE';
 
@@ -147,9 +159,24 @@
                                     var licenseDecoded = atob(licenseBase64);
                                     zip.file("LICENSE", licenseDecoded);
 
-                                    zip.generateAsync({ type: "blob" }).then(function (content) {
-                                        saveAs(content, boardValue + "_" + configIndices.join('_') + ".zip");
-                                    });
+                                    if (holeType === "Densus_Inserts") {
+                                        var densusGuideUrl = 'https://api.github.com/repos/Cipulot/ec60x-plate-maker/contents/densus_ec_insert_design_guide.png';
+                                        fetch(densusGuideUrl)
+                                            .then(response => response.json())
+                                            .then(densusData => {
+                                                var densusBase64 = densusData.content;
+                                                var densusDecoded = atob(densusBase64);
+                                                zip.file("densus_ec_insert_design_guide.png", densusDecoded, { base64: true });
+
+                                                zip.generateAsync({ type: "blob" }).then(function (content) {
+                                                    saveAs(content, boardValue + "_" + configIndices.join('_') + ".zip");
+                                                });
+                                            });
+                                    } else {
+                                        zip.generateAsync({ type: "blob" }).then(function (content) {
+                                            saveAs(content, boardValue + "_" + configIndices.join('_') + ".zip");
+                                        });
+                                    }
                                 });
                         });
                 }
